@@ -1,20 +1,70 @@
-/*
- *	 bootsect.s		Copyright (C) 1991, 1992 Linus Torvalds
- *
- * bootsect.s is loaded at 0x7c00 by the bios-startup routines, and moves
- * itself out of the way to address 0x90000, and jumps there.
- *
- * It then loads 'setup' directly after itself (0x90200), and the system
- * at 0x10000, using BIOS interrupts.
- *
- * The loader has been made as simple as possible, and continuos
- * read errors will result in a unbreakable loop. Reboot by hand. It
- * loads pretty fast by getting whole tracks at a time whenever possible.
- *
- * 1-Jan-96 Modified by Chris Brady for use as a boot loader for MemTest-86.
- */
+# 0 "bootsect.S"
+# 0 "<built-in>"
+# 0 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
 
-#include "defs.h"
+# 17 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 45 "/usr/include/stdc-predef.h" 3 4
+
+# 55 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+# 0 "<command-line>" 2
+# 1 "bootsect.S"
+
+# 16 "bootsect.S"
+
+
+# 1 "defs.h" 1
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 18 "bootsect.S" 2
 
 ROOT_DEV = 0
 
@@ -26,9 +76,9 @@ _boot:
 # ld86 requires an entry symbol. This may as well be the usual one.
 .globl	_main
 _main:
-	movw	$BOOTSEG, %ax
+	movw	$0x07c0, %ax
 	movw	%ax, %ds
-	movw	$INITSEG, %ax
+	movw	$0x9000, %ax
 	movw	%ax, %es
 	movw	$256, %cx
 	subw	%si, %si
@@ -36,7 +86,7 @@ _main:
 	cld
 	rep
 	movsw
-	ljmp	$INITSEG, $go - _boot
+	ljmp	$0x9000, $go - _boot
 
 go:
 	movw	%cs, %ax
@@ -52,25 +102,11 @@ go:
 
 	movw	%ax, %ds
 	movw	%ax, %es
-	movw	%ax, %ss		# put stack at INITSEG:0x4000-12.
+	movw	%ax, %ss		# put stack at 0x9000:0x4000-12.
 	movw	%dx, %sp
 
-/*
- *	Many BIOS's default disk parameter tables will not
- *	recognize multi-sector reads beyond the maximum sector number
- *	specified in the default diskette parameter tables - this may
- *	mean 7 sectors in some cases.
- *
- *	Since single sector reads are slow and out of the question,
- *	we must take care of this by creating new parameter tables
- *	(for the first disk) in RAM.  We will set the maximum sector
- *	count to 18 - the most we will encounter on an HD 1.44.
- *
- *	High doesn't hurt.  Low does.
- *
- *	Segments are as follows: ds=es=ss=cs - INITSEG,
- *		fs = 0, gs = parameter table segment
- */
+
+# 74 "bootsect.S"
 	pushw	$0
 	popw	%fs
 	movw	$0x78, %bx		# fs:bx is parameter table address
@@ -102,8 +138,8 @@ go:
 load_setup:
 	xorw	%dx, %dx			# drive 0, head 0
 	movw	$0x0002, %cx			# sector 2, track 0
-	movw	$0x0200, %bx			# address = 512, in INITSEG
-	movw	$(0x0200 + SETUPSECS), %ax	# service 2, nr of sectors
+	movw	$0x0200, %bx			# address = 512, in 0x9000
+	movw	$(0x0200 + 4), %ax	# service 2, nr of sectors
 						# (assume all on head 0, track 0)
 	int	$0x13				# read it
 	jnc	ok_load_setup			# ok - continue
@@ -124,14 +160,14 @@ ok_load_setup:
 # Get disk drive parameters, specifically nr of sectors/track
 
 
-/* It seems that there is no BIOS call to get the number of sectors.  Guess
- * 18 sectors if sector 18 can be read, 15 if sector 15 can be read.
- * Otherwise guess 9
- */
+
+
+
+
 
 	xorw	%dx, %dx			# drive 0, head 0
 	movw	$0x0012, %cx			# sector 18, track 0
-	movw	$(0x200+(SETUPSECS*0x200)), %bx	# address after setup (es = cs)
+	movw	$(0x200+(4*0x200)), %bx	# address after setup (es = cs)
 	movw	$0x0201, %ax			# service 2, 1 sector
 	int	$0x13
 	jnc	got_sectors
@@ -143,7 +179,7 @@ ok_load_setup:
 
 got_sectors:
 	movw	%cx, %cs:sectors - _boot
-	movw	$INITSEG, %ax
+	movw	$0x9000, %ax
 	movw	%ax, %es
 
 # Print some inane message
@@ -161,7 +197,7 @@ got_sectors:
 # ok, we've written the message, now
 # we want to load the system (at 0x10000)
 
-	movw	$TSTLOAD, %ax
+	movw	$0x1000, %ax
 	movw	%ax, %es		# segment of 0x010000
 	call	read_it
 	call	kill_motor
@@ -172,15 +208,15 @@ got_sectors:
 # the setup-routine loaded directly after
 # the bootblock:
 
-	ljmp	$SETUPSEG,$0
+	ljmp	$(0x9000+0x20),$0
 
 # This routine loads the system at address 0x10000, making sure
 # no 64kB boundaries are crossed. We try to load it as fast as
 # possible, loading whole tracks whenever we can.
-#
+
 # in:	es - starting address segment (normally 0x1000)
-#
-sread:	.word 1+SETUPSECS	# sectors read of current track
+
+sread:	.word 1+4	# sectors read of current track
 head:	.word 0			# current head
 track:	.word 0			# current track
 
@@ -192,7 +228,7 @@ die:
 	xorw	%bx,%bx		# bx is starting address within segment
 rp_read:
 	movw	%es, %ax
-	subw	$TSTLOAD, %ax	# have we loaded all yet?
+	subw	$0x1000, %ax	# have we loaded all yet?
 	cmpw	syssize - _boot, %ax
 	jbe	ok1_read
 	ret
@@ -271,18 +307,8 @@ bad_rt:
 	popa
 	jmp read_track
 
-/*
- *	print_all is for debugging purposes.
- *	It will print out all of the registers.  The assumption is that this is
- *	called from a routine, with a stack frame like
- *	dx
- *	cx
- *	bx
- *	ax
- *	error
- *	ret <- sp
- *
-*/
+
+# 286 "bootsect.S"
 
 print_all:
 	movw	$5, %cx		# error code + 4 registers
@@ -317,10 +343,10 @@ print_nl:
 	int	$0x10
 	ret
 
-/*
- *	print_hex is for debugging purposes, and prints the word
- *	pointed to by ss:bp in hexadecmial.
- */
+
+
+
+
 
 print_hex:
 	movw	$4, %cx		# 4 hex digits
@@ -342,11 +368,11 @@ good_digit:
 	ret
 
 
-/*
- * This procedure turns off the floppy drive motor, so
- * that we enter the kernel in a known state, and
- * don't have to worry about it later.
- */
+
+
+
+
+
 kill_motor:
 	pushw	%dx
 	movw	$0x3f2, %dx
@@ -371,7 +397,7 @@ msg1:
 
 .org 497
 setup_sects:
-	.byte SETUPSECS
+	.byte 4
 .org 500
 syssize:
 	.word _syssize

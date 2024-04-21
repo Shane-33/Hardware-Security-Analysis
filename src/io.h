@@ -1,5 +1,8 @@
-#ifndef _ASM_IO_H
-#define _ASM_IO_H
+// #ifndef _ASM_IO_H
+// #define _ASM_IO_H
+
+#ifndef OUTS_DEFINED
+#define OUTS_DEFINED
 
 /*
  * This file contains the definitions for the x86 IO instructions
@@ -55,7 +58,7 @@ __IN1(s##_p) __IN2(s,s1,"w") : "=a" (_v) : "d" (port) ,##i ); SLOW_DOWN_IO; retu
 __IN1(s##c_p) __IN2(s,s1,"") : "=a" (_v) : "id" (port) ,##i ); SLOW_DOWN_IO; return _v; }
 
 #define __OUTS(s) \
-extern inline void outs##s(unsigned short port, const void * addr, unsigned long count) \
+extern inline void outs_##s(unsigned short port, const void * addr, unsigned long count) \
 { __asm__ __volatile__ ("cld ; rep ; outs" #s \
 : "=S" (addr), "=c" (count) : "d" (port),"0" (addr),"1" (count)); }
 
@@ -115,4 +118,43 @@ __OUTS(l)
 ((__builtin_constant_p((port)) && (port) < 256) ? \
 	__inlc(port) : \
 	__inl(port))
+
+
+// Implementations for outs functions
+static inline void outsb(unsigned short port, const void *addr, unsigned long count) {
+    __asm__ __volatile__ ("cld ; rep ; outsb"
+                          : "=S" (addr), "=c" (count)
+                          : "d" (port), "0" (addr), "1" (count));
+}
+
+static inline void outsw(unsigned short port, const void *addr, unsigned long count) {
+    __asm__ __volatile__ ("cld ; rep ; outsw"
+                          : "=S" (addr), "=c" (count)
+                          : "d" (port), "0" (addr), "1" (count));
+}
+
+static inline void outsl(unsigned short port, const void *addr, unsigned long count) {
+    __asm__ __volatile__ ("cld ; rep ; outsl"
+                          : "=S" (addr), "=c" (count)
+                          : "d" (port), "0" (addr), "1" (count));
+}
+
+static inline unsigned char inb_p(unsigned short port)
+{
+    unsigned char ret;
+    asm volatile ("inb %1, %0" : "=a"(ret) : "Nd"(port));
+    return ret;
+}
+
+static inline void outb_p(unsigned short port, unsigned char value)
+{
+    asm volatile ("outb %0, %1" : : "a"(value), "Nd"(port));
+    // Some devices might require a delay after I/O operations
+    asm volatile ("jmp 1f\n\t"
+                  "1:jmp 1f\n\t"
+                  "1:jmp 1f\n\t"
+                  "1:");
+}
+	
+
 #endif

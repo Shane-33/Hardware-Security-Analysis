@@ -14,12 +14,16 @@ CC=gcc
 
 CFLAGS= -Wall -march=i486 -m32 -O0 -fomit-frame-pointer -fno-builtin \
 	-ffreestanding -fPIC $(SMP_FL) -fno-stack-protector 
-	
+
+# Added -fgnu89-inline to handle inline functions across multiple files
+CFLAGS= -Wall -march=i486 -m32 -O0 -fomit-frame-pointer -fno-builtin \
+    -ffreestanding -fPIC $(SMP_FL) -fno-stack-protector -fgnu89-inline
+
+
 OBJS= head.o reloc.o main.o test.o init.o lib.o patn.o screen_buffer.o \
       config.o cpuid.o linuxbios.o pci.o memsize.o spd.o error.o dmi.o controller.o \
       smp.o vmem.o random.o
       
-
 all: clean memtest.bin memtest 
 
 # Link it statically once so I know I don't have undefined

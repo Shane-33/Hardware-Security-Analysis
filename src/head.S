@@ -1,21 +1,138 @@
-/*
- *  linux/boot/head.S
- *  Copyright (C) 1991, 1992  Linus Torvalds
- */
+# 0 "head.S"
+# 0 "<built-in>"
+# 0 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
 
-/*
- *  head.S contains the 32-bit startup code.
- *
- *  1-Jan-96 Modified by Chris Brady for use as a boot/loader for MemTest-86.
- *  Setup the memory management for flat non-paged linear addressing.
- *  17 May 2004 : Added X86_PWRCAP for AMD64 (Memtest86+ - Samuel D.)
- */
+# 17 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 45 "/usr/include/stdc-predef.h" 3 4
+
+# 55 "/usr/include/stdc-predef.h" 3 4
+
+
+
+
+
+
+
+
+
+# 0 "<command-line>" 2
+# 1 "head.S"
+
+
+
+
+
+
+
+
+
+
+
+
 
 .text
-#define __ASSEMBLY__
-#include "defs.h"
-#include "config.h"
-#include "test.h"
+
+
+# 1 "defs.h" 1
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 17 "head.S" 2
+
+# 1 "config.h" 1
+
+# 13 "config.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+# 18 "head.S" 2
+
+# 1 "test.h" 1
+
+
+
+
+
+
+# 16 "test.h"
+
+# 19 "head.S" 2
 
 	.code32
 	.globl startup_32
@@ -23,39 +140,39 @@ startup_32:
 	cld
 	cli
 
-	/* Ensure I have a boot_stack pointer */
+	
 	testl	%esp, %esp
 	jnz 0f
-	movl	$(LOW_TEST_ADR + _GLOBAL_OFFSET_TABLE_), %esp
+	movl	$(0x00010000 + _GLOBAL_OFFSET_TABLE_), %esp
 	leal	boot_stack_top@GOTOFF(%esp), %esp
 0:
 
-	/* Load the GOT pointer */
+	
 	call	0f
 0:	popl	%ebx
 	addl	$_GLOBAL_OFFSET_TABLE_+[.-0b], %ebx
 
-	/* Pick the appropriate boot_stack address */
+	
 	leal	boot_stack_top@GOTOFF(%ebx), %esp
 
-	/* Reload all of the segment registers */
+	
 	leal	gdt@GOTOFF(%ebx), %eax
 	movl	%eax, 2 + gdt_descr@GOTOFF(%ebx)
 	lgdt	gdt_descr@GOTOFF(%ebx)
 	leal	flush@GOTOFF(%ebx), %eax
-	pushl	$KERNEL_CS
+	pushl	$0x10
 	pushl	%eax
 	lret
-flush:	movl	$KERNEL_DS, %eax
+flush:	movl	$0x18, %eax
 	movw	%ax, %ds
 	movw	%ax, %es
 	movw	%ax, %fs
 	movw	%ax, %gs
 	movw	%ax, %ss
 
-/*
- *  Zero BSS
- */
+
+
+
 	cmpl	$1, zerobss@GOTOFF(%ebx)
 	jnz	zerobss_done
 	xorl	%eax, %eax
@@ -69,172 +186,172 @@ flush:	movl	$KERNEL_DS, %eax
 	movl	$0, zerobss@GOTOFF(%ebx)
 zerobss_done:
 
-/*
- * Setup an exception handler
- */
+
+
+
 	leal	idt@GOTOFF(%ebx), %edi
 
 	leal	vec0@GOTOFF(%ebx), %edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx, %ax	/* selector = 0x0010 = cs */
-	movw	$0x8E00, %dx	/* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx, %ax	
+	movw	$0x8E00, %dx	
 	movl	%eax, (%edi)
 	movl	%edx, 4(%edi)
 	addl	$8, %edi
 
 	leal	vec1@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec2@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec3@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec4@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec5@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec6@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec7@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec8@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec9@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec10@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec11@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec12@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec13@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec14@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec15@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec16@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec17@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec18@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
 	leal	vec19@GOTOFF(%ebx),%edx
-	movl	$(KERNEL_CS << 16),%eax
-	movw	%dx,%ax		   /* selector = 0x0010 = cs */
-	movw	$0x8E00,%dx	   /* interrupt gate - dpl=0, present */
+	movl	$(0x10 << 16),%eax
+	movw	%dx,%ax		   
+	movw	$0x8E00,%dx	   
 	movl	%eax,(%edi)
 	movl	%edx,4(%edi)
 	addl	$8,%edi
 
-	/* Now that it is initialized load the interrupt descriptor table */
+	
 	leal	idt@GOTOFF(%ebx), %eax
 	movl	%eax, 2 + idt_descr@GOTOFF(%ebx)
 	lidt	idt_descr@GOTOFF(%ebx)
@@ -242,116 +359,116 @@ zerobss_done:
 	leal	_dl_start@GOTOFF(%ebx), %eax
 	call	*%eax
 
-	/* Never forget to initialize the FPU ... Never ! */ 
+	 
 	finit
 
 	call	test_start
 
-	/* In case we return simulate an exception */
+	
 	pushfl
 	pushl	%cs
 	call	0f
-0:	pushl	$0 /* error code */
-	pushl	$257 /* vector */
+0:	pushl	$0 
+	pushl	$257 
 	jmp	int_hand
 
 vec0:
-	pushl	$0 /* error code */
-	pushl	$0 /* vector */
+	pushl	$0 
+	pushl	$0 
 	jmp int_hand
 vec1:
-	pushl	$0 /* error code */
-	pushl	$1 /* vector */
+	pushl	$0 
+	pushl	$1 
 	jmp int_hand
 
 vec2:
-	pushl	$0 /* error code */
-	pushl	$2 /* vector */
+	pushl	$0 
+	pushl	$2 
 	jmp int_hand
 
 vec3:
-	pushl	$0 /* error code */
-	pushl	$3 /* vector */
+	pushl	$0 
+	pushl	$3 
 	jmp	int_hand
 
 vec4:
-	pushl	$0 /* error code */
-	pushl	$4 /* vector */
+	pushl	$0 
+	pushl	$4 
 	jmp	int_hand
 
 vec5:
-	pushl	$0 /* error code */
-	pushl	$5 /* vector */
+	pushl	$0 
+	pushl	$5 
 	jmp	int_hand
 
 vec6:
-	pushl	$0 /* error code */
-	pushl	$6 /* vector */
+	pushl	$0 
+	pushl	$6 
 	jmp	int_hand
 
 vec7:
-	pushl	$0 /* error code */
-	pushl	$7 /* vector */
+	pushl	$0 
+	pushl	$7 
 	jmp	int_hand
 
 vec8:
-	/* error code */
-	pushl	$8 /* vector */
+	
+	pushl	$8 
 	jmp	int_hand
 
 vec9:
-	pushl	$0 /* error code */
-	pushl	$9 /* vector */
+	pushl	$0 
+	pushl	$9 
 	jmp int_hand
 
 vec10:
-	/* error code */
-	pushl	$10 /* vector */
+	
+	pushl	$10 
 	jmp	int_hand
 
 vec11:
-	/* error code */
-	pushl	$11 /* vector */
+	
+	pushl	$11 
 	jmp	int_hand
 
 vec12:
-	/* error code */
-	pushl	$12 /* vector */
+	
+	pushl	$12 
 	jmp	int_hand
 
 vec13:
-	/* error code */
-	pushl	$13 /* vector */
+	
+	pushl	$13 
 	jmp	int_hand
 
 vec14:
-	/* error code */
-	pushl	$14 /* vector */
+	
+	pushl	$14 
 	jmp	int_hand
 
 vec15:
-	pushl	$0 /* error code */
-	pushl	$15 /* vector */
+	pushl	$0 
+	pushl	$15 
 	jmp	int_hand
 
 vec16:
-	pushl	$0 /* error code */
-	pushl	$16 /* vector */
+	pushl	$0 
+	pushl	$16 
 	jmp	int_hand
 
 vec17:
-	/* error code */
-	pushl	$17 /* vector */
+	
+	pushl	$17 
 	jmp	int_hand
 
 vec18:
-	pushl	$0 /* error code */
-	pushl	$18 /* vector */
+	pushl	$0 
+	pushl	$18 
 	jmp	int_hand
 
 vec19:
-	pushl	$0 /* error code */
-	pushl	$19 /* vector */
+	pushl	$0 
+	pushl	$19 
 	jmp	int_hand
 
 int_hand:
@@ -363,12 +480,12 @@ int_hand:
 	pushl	%esi
 	pushl	%ebp
 
-	/* original boot_stack pointer */
+	
 	leal	48(%esp), %eax
 	pushl	%eax
 	pushl	%ds  
 	pushl	%ss 
-	pushl	%esp /* pointer to trap regs struct on the boot_stack */
+	pushl	%esp 
 	call	inter
 	addl	$8, %esp
 
@@ -381,9 +498,9 @@ int_hand:
 	popl	%eax
 	iret
 
-/*
- * The interrupt descriptor table has room for 32 idt's
- */
+
+
+
 .align 4
 .word 0
 idt_descr:
@@ -400,19 +517,19 @@ gdt_descr:
 .align 4
 .globl gdt, gdt_end
 gdt:
-	.quad 0x0000000000000000	/* NULL descriptor */
-	.quad 0x0000000000000000	/* not used */
-	.quad 0x00cf9b000000ffff	/* 0x10 main 4gb code at 0x000000 */
-	.quad 0x00cf93000000ffff	/* 0x18 main 4gb data at 0x000000 */
+	.quad 0x0000000000000000	
+	.quad 0x0000000000000000	
+	.quad 0x00cf9b000000ffff	
+	.quad 0x00cf93000000ffff	
 
 	.word	0xFFFF				# 16bit 64KB - (0x10000*1 = 64KB)
-	.word	0				# base address = SETUPSEG
+	.word	0				# base address = (0x9000+0x20)
 	.byte	0x00, 0x9b			# code read/exec/accessed
 	.byte	0x00, 0x00			# granularity = bytes
 
 
 	.word	0xFFFF				# 16bit 64KB - (0x10000*1 = 64KB)
-	.word	0				# base address = SETUPSEG
+	.word	0				# base address = (0x9000+0x20)
 	.byte	0x00, 0x93			# data read/write/accessed
 	.byte	0x00, 0x00			# granularity = bytes
 
@@ -502,11 +619,11 @@ pml4:
 	.long 0
 .previous
 
-#define RSTART startup_32
+
 
 	.globl query_pcbios
 query_pcbios:
-	/* Save the caller save registers */
+	
 	pushl	%ebx
 	pushl	%esi
 	pushl	%edi
@@ -515,19 +632,19 @@ query_pcbios:
 1:	popl	%ebx
 	addl	$_GLOBAL_OFFSET_TABLE_+[.-1b], %ebx
 
-	/* Compute the reloc address */
-	leal	RSTART@GOTOFF(%ebx), %esi
+	
+	leal	startup_32@GOTOFF(%ebx), %esi
 
-	/* Fixup real code pointer */
+	
 	movl	%esi, %eax
 	shrl	$4, %eax
 	movw	%ax, 2 + realptr@GOTOFF(%ebx)
 
-	/* Fixup protected code pointer */
+	
 	leal	prot@GOTOFF(%ebx), %eax
 	movl	%eax, protptr@GOTOFF(%ebx)
 
-	/* Compute the gdt fixup */
+	
 	movl	%esi, %eax
 	shll	$16, %eax	# Base low
 
@@ -539,55 +656,55 @@ query_pcbios:
 	andl	$0xff000000, %edx
 	orl	%edx, %ecx
 
-	/* Fixup the gdt */
-	andl	$0x0000ffff, REAL_CS + 0 + gdt@GOTOFF(%ebx)
-	orl	%eax,        REAL_CS + 0 + gdt@GOTOFF(%ebx)
-	andl	$0x00ffff00, REAL_CS + 4 + gdt@GOTOFF(%ebx)
-	orl	%ecx,        REAL_CS + 4 + gdt@GOTOFF(%ebx)
-	andl	$0x0000ffff, REAL_DS + 0 + gdt@GOTOFF(%ebx)
-	orl	%eax,        REAL_DS + 0 + gdt@GOTOFF(%ebx)
-	andl	$0x00ffff00, REAL_DS + 4 + gdt@GOTOFF(%ebx)
-	orl	%ecx,        REAL_DS + 4 + gdt@GOTOFF(%ebx)
+	
+	andl	$0x0000ffff, 0x20 + 0 + gdt@GOTOFF(%ebx)
+	orl	%eax,        0x20 + 0 + gdt@GOTOFF(%ebx)
+	andl	$0x00ffff00, 0x20 + 4 + gdt@GOTOFF(%ebx)
+	orl	%ecx,        0x20 + 4 + gdt@GOTOFF(%ebx)
+	andl	$0x0000ffff, 0x28 + 0 + gdt@GOTOFF(%ebx)
+	orl	%eax,        0x28 + 0 + gdt@GOTOFF(%ebx)
+	andl	$0x00ffff00, 0x28 + 4 + gdt@GOTOFF(%ebx)
+	orl	%ecx,        0x28 + 4 + gdt@GOTOFF(%ebx)
 
-	/* Fixup the gdt_descr */
+	
 	leal	gdt@GOTOFF(%ebx), %eax
 	movl	%eax, 2 + gdt_descr@GOTOFF(%ebx)
 
 	lidt	idt_real@GOTOFF(%ebx)
 
-	/* Don't disable the a20 line */
+	
 
-	/* Load 16bit data segments, to ensure the segment limits are set */
-	movl	$REAL_DS, %eax
+	
+	movl	$0x28, %eax
 	movl	%eax, %ds
 	movl	%eax, %es
 	movl	%eax, %ss
 	movl	%eax, %fs
 	movl	%eax, %gs
 
-	/* Compute the boot_stack base */
+	
 	leal	boot_stack@GOTOFF(%ebx), %ecx
-	/* Compute the address of meminfo */
+	
 	leal	mem_info@GOTOFF(%ebx), %edi
 
-	/* switch to 16bit mode */
-	ljmp	$REAL_CS, $1f - RSTART
+	
+	ljmp	$0x20, $1f - startup_32
 1:
 	.code16
-	/* Disable Paging and protected mode */
-	/* clear the PG & PE bits of CR0 */
+	
+	
 	movl	%cr0,%eax
 	andl	$~((1 << 31)|(1<<0)),%eax
 	movl	%eax,%cr0
 
-	/* make intersegment jmp to flush the processor pipeline
-	 * and reload %cs:%eip (to clear upper 16 bits of %eip).
-	 */
-	ljmp	*(realptr - RSTART)
+	
+
+
+	ljmp	*(realptr - startup_32)
 real:
-	/* we are in real mode now
-	 * set up the real mode segment registers : %ds, %ss, %es, %gs, %fs
-	 */
+	
+
+
 	movw	%cs, %ax
 	movw	%ax, %ds
 	movw	%ax, %es
@@ -595,30 +712,30 @@ real:
 	movw	%ax, %gs
 	movw	%ax, %ss
 
-	/* Adjust the boot_stack pointer */
+	
 	movl	%ecx, %eax
 	shrl	$4, %eax
 	movw	%ax, %ss
 	subl	%ecx, %esp
 
-	/* Save my base pointer */
+	
 	pushl	%ebx
 
-	/* Setup %ds to point to my data area */
+	
 	shrl	$4, %edi
 	movl	%edi, %ds
 
-	/* Enable interrupts or BIOS's go crazy */
+	
 	sti
 
 # Get memory size (extended mem, kB)
 
-#define SMAP	0x534d4150
+
 
 	xorl	%eax, %eax
-	movl	%eax, (E88)
-	movl	%eax, (E801)
-	movl	%eax, (E820NR)
+	movl	%eax, (0x00)
+	movl	%eax, (0x04)
+	movl	%eax, (0x08)
 
 # Try three different memory detection schemes.  First, try
 # e820h, which lets us assemble a memory map, then try e801h,
@@ -629,25 +746,25 @@ real:
 # the memory map from hell.  e820h returns memory classified into
 # a whole bunch of different types, and allows memory holes and
 # everything.  We scan through this memory map and build a list
-# of the first 32 memory areas, which we return at [E820MAP].
+# of the first 32 memory areas, which we return at [0x0c].
 # This is documented at http://www.teleport.com/~acpi/acpihtml/topic245.htm
 
 meme820:
 	xorl	%ebx, %ebx			# continuation counter
-	movw	$E820MAP, %di			# point into the whitelist
+	movw	$0x0c, %di			# point into the whitelist
 						# so we can have the bios
 						# directly write into it.
 
 jmpe820:
 	movl	$0x0000e820, %eax		# e820, upper word zeroed
-	movl	$SMAP, %edx			# ascii 'SMAP'
+	movl	$0x534d4150, %edx			# ascii 'SMAP'
 	movl	$20, %ecx			# size of the e820rec
 	pushw	%ds				# data record.
 	popw	%es
 	int	$0x15				# make the call
 	jc	bail820				# fall to e801 if it fails
 
-	cmpl	$SMAP, %eax			# check the return is `SMAP'
+	cmpl	$0x534d4150, %eax			# check the return is `0x534d4150'
 	jne	bail820				# fall to e801 if it fails
 
 #	cmpl	$1, 16(%di)			# is this usable memory?
@@ -657,13 +774,13 @@ jmpe820:
 	# sizeof(e820rec).
 	#
 good820:
-	movb	(E820NR), %al			# up to 32 entries
-	cmpb	$E820MAX, %al
+	movb	(0x08), %al			# up to 32 entries
+	cmpb	$127, %al
 	jnl	bail820
 
-	incb	(E820NR)
+	incb	(0x08)
 	movw	%di, %ax
-	addw	$E820ENTRY_SIZE, %ax
+	addw	$20, %ax
 	movw	%ax, %di
 again820:
 	cmpl	$0, %ebx			# check to see if
@@ -697,9 +814,9 @@ meme801:
 e801usecxdx:
 	andl	$0xffff, %edx			# clear sign extend
 	shll	$6, %edx			# and go from 64k to 1k chunks
-	movl	%edx, (E801)			# store extended memory size
+	movl	%edx, (0x04)			# store extended memory size
 	andl	$0xffff, %ecx			# clear sign extend
- 	addl	%ecx, (E801)			# and add lower memory into
+ 	addl	%ecx, (0x04)			# and add lower memory into
 						# total size.
 
 # Ye Olde Traditional Methode.  Returns the memory size (up to 16mb or
@@ -708,9 +825,9 @@ mem88:
 
 	movb	$0x88, %ah
 	int	$0x15
-	movw	%ax, (E88)
+	movw	%ax, (0x00)
 
-#ifdef APM_OFF
+
 # check for APM BIOS
 	movw	$0x5300, %ax    # APM BIOS installation check
 	xorw	%bx, %bx
@@ -735,44 +852,44 @@ mem88:
 	int	$0x15
 
 done_apm_bios:
-#endif
 
-	/* O.k. the BIOS query is done switch back to protected mode */
+
+	
 	cli
 
-	/* Restore my saved variables */
+	
 	popl	%ebx
 
-	/* Get an convinient %ds */
+	
 	movw	%cs, %ax
 	movw	%ax, %ds
 
-	/* Load the global descriptor table */
-	addr32 lgdt	gdt_descr - RSTART
+	
+	addr32 lgdt	gdt_descr - startup_32
 
-	/* Turn on protected mode */
-	/* Set the PE bit in CR0 */
+	
+	
 	movl	%cr0,%eax
 	orl	$(1<<0),%eax
 	movl	%eax,%cr0
 
-	/* flush the prefetch queue, and relaod %cs:%eip */
-	data32 ljmp	*(protptr - RSTART)
+	
+	data32 ljmp	*(protptr - startup_32)
 prot:
 	.code32
-	/* Reload other segment registers */
-	movl	$KERNEL_DS, %eax
+	
+	movl	$0x18, %eax
 	movl	%eax, %ds
 	movl	%eax, %es
 	movl	%eax, %fs
 	movl	%eax, %gs
 	movl	%eax, %ss
 
-	/* Adjust the boot_stack pointer */
+	
 	leal	boot_stack@GOTOFF(%ebx), %eax
 	addl	%eax, %esp
 
-	/* Restore the caller saved registers */
+	
 	popl	%ebp
 	popl	%edi
 	popl	%esi
@@ -781,50 +898,41 @@ prot:
 	ret
 
 realptr:
-	.word	real - RSTART
+	.word	real - startup_32
 	.word	0x0000
 protptr:
 	.long	0
-	.long	KERNEL_CS
+	.long	0x10
 
 idt_real:
 	.word	0x400 - 1			# idt limit ( 256 entries)
 	.word	0, 0				# idt base = 0L
 
-/* _ap_trampoline_start is the entry point for cpus other than the
- * bootstrap cpu. The code between _ap_trampoline_start to
- * _ap_trampoline_protmode is copied to BootCodeStart(0x9000).
- * The ljmp after turning on CR0.PE will jump to the
- * relocatable code which usually resides at 0x10000 + _ap_trampoline_protmode.
- *
- * The trampoline code uses a temporary GDT. The entries of this temporary
- * GDT must match the first few entries of the GDT used by the relocatble
- * memtest code(see 'gdt' sybmol in this file).
- *
- */
+
+# 805 "head.S"
 	.globl _ap_trampoline_start
 	.globl _ap_trampoline_protmode
 	.code16
 _ap_trampoline_start:
-	lgdt    0x0 /* will be fixed up later, see smp.c:BootAP()*/
+	lgdt    0x0 
 	movl	%cr0, %eax
 	orl	$1, %eax
 	movl	%eax, %cr0
-	data32 ljmp    $KERNEL_CS, $_ap_trampoline_protmode
+	data32 ljmp    $0x10, $_ap_trampoline_protmode
 _ap_trampoline_protmode:
 	.code32
-	movw	$KERNEL_DS, %ax
+	movw	$0x18, %ax
 	movw	%ax, %ds
 	movw	%ax, %es
 	movw	%ax, %fs
 	movw	%ax, %gs
 	movw	%ax, %ss
-	movl	$(LOW_TEST_ADR + _GLOBAL_OFFSET_TABLE_), %esp
+	movl	$(0x00010000 + _GLOBAL_OFFSET_TABLE_), %esp
 	leal	boot_stack_top@GOTOFF(%esp), %esp
 	pushl   $0
 	popf
 	call    startup_32
-	/* if we ever return, we'll just loop forever */
+	
 	cli
 2:	hlt
 	jmp 2b	
@@ -835,7 +943,7 @@ zerobss:	.long	1
 .balign 16
 	.globl mem_info
 mem_info:
-	. = . + MEMINFO_SIZE
+	. = . + (0x0c + 127 * 20)
 .previous
 .bss
 .balign 16
