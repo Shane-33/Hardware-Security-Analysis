@@ -1,0 +1,12 @@
+[submodule "rowhammer"]
+	path = rowhammer
+	url = https://github.com/CMU-SAFARI/rowhammer.git
+[submodule "rowhammerjs"]
+	path = rowhammerjs
+	url = https://github.com/IAIK/rowhammerjs.git
+[submodule "spectre-meltdown"]
+	path = spectre-meltdown
+	url = https://github.com/Semihalf/spectre-meltdown.git
+[submodule "In-Spectre-Meltdown"]
+	path = In-Spectre-Meltdown
+	url = https://github.com/Viralmaniar/In-Spectre-Meltdown.git
