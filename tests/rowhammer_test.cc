@@ -14,8 +14,8 @@
 
 // This is required on Mac OS X for getting PRI* macros #defined.
 
+// Revised by SHANE ZHU
 
-// Revised by Shane Zhu
 
 #define __STDC_FORMAT_MACROS
 
@@ -75,7 +75,7 @@ static void toggle(int iterations, int addr_count) {
     for (int i = 0; i < toggles; i++) {
       for (int a = 0; a < addr_count; a++) {
         sum += *addrs[a] + 1;
-        // TODO: Modify the memory content
+        // Modify the memory content
         *addrs[a] = ~(*addrs[a]);  
       }
       for (int a = 0; a < addr_count; a++)
@@ -107,39 +107,6 @@ static void toggle(int iterations, int addr_count) {
          refresh_period_ms);
 }
 
-
-void double_sided_toggle(int iterations, int addr_count) {
-  Timer timer;
-  for (int j = 0; j < iterations; j++) {
-    uint64_t *addrs[addr_count];
-    for (int a = 0; a < addr_count; a++)
-      addrs[a] = (uint64_t *)pick_addr();
-
-    uint64_t sum = 0;
-    for (int i = 0; i < toggles; i++) {
-      for (int a = 0; a < addr_count; a++)
-        sum += *addrs[a] + 1;
-      for (int a = 0; a < addr_count; a++)
-        asm volatile("clflush (%0)" : : "r"(addrs[a]) : "memory");
-    }
-
-    if (sum != 0) {
-      printf("error: sum=%lx\n", sum);
-      exit(1);
-    }
-  }
-
-  double time_taken = timer.get_diff();
-  printf("  Took %.1f ms per address set (double-sided)\n",
-         time_taken / iterations * 1e3);
-  printf("  Took %g sec in total for %i address sets (double-sided)\n",
-         time_taken, iterations);
-  int memory_accesses = iterations * addr_count * toggles;
-  printf("  Took %.3f nanosec per memory access (double-sided, for %i memory accesses)\n",
-         time_taken / memory_accesses * 1e9, memory_accesses);
-}
-
-
 void main_prog() {
   g_mem = (char *) mmap(NULL, mem_size, PROT_READ | PROT_WRITE,
                         MAP_ANON | MAP_PRIVATE, -1, 0);
@@ -153,11 +120,6 @@ void main_prog() {
   for (;;) {
     printf("Iteration %i (after %.2fs)\n", iter++, t.get_diff());
     toggle(10, 8);
-    // TODO: Double-sided rowhammer test
-    double_sided_toggle(10, 8); 
-
-    printf("Double-sided toggle:\n");
-    double_sided_toggle(10, 8);
 
     Timer check_timer;
     uint64_t *end = (uint64_t *) (g_mem + mem_size);
