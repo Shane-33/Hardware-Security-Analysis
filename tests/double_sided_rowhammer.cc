@@ -58,26 +58,12 @@ uint64_t number_of_seconds_to_hammer = 3600;
 // The number of memory reads to try.
 uint64_t number_of_reads = 1000*1024;
 
-// TODO: Error handling 
-void Log(const std::string& message) {
-    std::cout << message << std::endl;
-}
-
-void Error(const std::string& message) {
-    std::cerr << "Error: " << message << std::endl;
-    exit(EXIT_FAILURE);
-}
-
-
 // Obtain the size of the physical memory of the system.
 uint64_t GetPhysicalMemorySize() {
-    struct sysinfo info;
-    if (sysinfo(&info) != 0) {
-        Error("Failed to get physical memory size.");
-    }
-    return static_cast<uint64_t>(info.totalram) * static_cast<uint64_t>(info.mem_unit);
+  struct sysinfo info;
+  sysinfo( &info );
+  return (size_t)info.totalram * (size_t)info.mem_unit;
 }
-
 
 uint64_t GetPageFrameNumber(int pagemap, uint8_t* virtual_address) {
   // Read the entry in the pagemap.
@@ -128,7 +114,6 @@ uint64_t HammerAddressesStandard(
   }
   return sum;
 }
-
 
 typedef uint64_t(HammerFunction)(
     const std::pair<uint64_t, uint64_t>& first_range,
@@ -244,36 +229,29 @@ void HammeredEnough(int sig) {
 
 }  // namespace
 
-
-// Revised main function 
 int main(int argc, char** argv) {
-    setvbuf(stdout, NULL, _IONBF, 0);
+  // Turn off stdout buffering when it is a pipe.
+  setvbuf(stdout, NULL, _IONBF, 0);
 
-    int opt;
-    while ((opt = getopt(argc, argv, "t:p:")) != -1) {
-        switch (opt) {
-            case 't':
-                number_of_seconds_to_hammer = std::atoi(optarg);
-                if (number_of_seconds_to_hammer <= 0) {
-                    Error("Invalid number of seconds to hammer.");
-                }
-                break;
-            case 'p':
-                fraction_of_physical_memory = std::atof(optarg);
-                if (fraction_of_physical_memory <= 0 || fraction_of_physical_memory > 1) {
-                    Error("Invalid fraction of physical memory.");
-                }
-                break;
-            default:
-                Error("Usage: ./double_sided_rowhammer [-t nsecs] [-p percent]");
-        }
+  int opt;
+  while ((opt = getopt(argc, argv, "t:p:")) != -1) {
+    switch (opt) {
+      case 't':
+        number_of_seconds_to_hammer = atoi(optarg);
+        break;
+      case 'p':
+        fraction_of_physical_memory = atof(optarg);
+        break;
+      default:
+        fprintf(stderr, "Usage: %s [-t nsecs] [-p percent]\n", 
+            argv[0]);
+        exit(EXIT_FAILURE);
     }
+  }
 
-    signal(SIGALRM, HammeredEnough);
+  signal(SIGALRM, HammeredEnough);
 
-    Log("[!] Starting the testing process...");
-    alarm(number_of_seconds_to_hammer);
-    HammerAllReachableRows(&HammerAddressesStandard, number_of_reads);
-
-    return 0;
+  printf("[!] Starting the testing process...\n");
+  alarm(number_of_seconds_to_hammer);
+  HammerAllReachableRows(&HammerAddressesStandard, number_of_reads);
 }
