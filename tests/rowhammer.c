@@ -1,4 +1,6 @@
+// rowhammer
 // @author: Shane Zhu 
+
 
 #include <stdio.h>
 #include <stdint.h>
