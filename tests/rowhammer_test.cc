@@ -13,10 +13,6 @@
 // limitations under the License.
 
 // This is required on Mac OS X for getting PRI* macros #defined.
-
-// Revised by SHANE ZHU
-
-
 #define __STDC_FORMAT_MACROS
 
 #include <assert.h>
@@ -73,15 +69,11 @@ static void toggle(int iterations, int addr_count) {
 
     uint32_t sum = 0;
     for (int i = 0; i < toggles; i++) {
-      for (int a = 0; a < addr_count; a++) {
+      for (int a = 0; a < addr_count; a++)
         sum += *addrs[a] + 1;
-        // Modify the memory content
-        *addrs[a] = ~(*addrs[a]);  
-      }
       for (int a = 0; a < addr_count; a++)
         asm volatile("clflush (%0)" : : "r" (addrs[a]) : "memory");
     }
-
 
     // Sanity check.  We don't expect this to fail, because reading
     // these rows refreshes them.
