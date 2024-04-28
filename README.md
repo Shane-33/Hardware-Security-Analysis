@@ -61,6 +61,57 @@ The rowhammer problem is described in Yoongu Kim et al's paper, "[Flipping Bits 
 
 ## Building and Running the Tests
 
+
+
+## Additional Tests
+
+### hardware_test.c
+
+- **Description**: This file contains tests for measuring the latency and bandwidth of memory accesses.
+- **Language**: C
+- **Usage**:
+  1. Navigate to the `tests` directory.
+  2. Compile the test file:
+     ```bash
+     gcc hardware_test.c -o hardware_test
+     ```
+  3. Run the test:
+     ```bash
+     ./hardware_test
+     ```
+
+### aggressive_bit_toggle.c
+
+- **Description**: This file contains a test for aggressively toggling bits in memory to simulate potential vulnerabilities.
+- **Language**: C
+- **Usage**:
+  1. Navigate to the `tests` directory.
+  2. Compile the test file:
+     ```bash
+     gcc aggressive_bit_toggle.c -o aggressive_bit_toggle
+     ```
+  3. Run the test:
+     ```bash
+     ./aggressive_bit_toggle
+     ```
+
+### afl_integration.c
+
+- **Description**: This file demonstrates integration with AFL for fuzz testing.
+- **Language**: C
+- **Usage**:
+  1. Navigate to the `tests` directory.
+  2. Compile the integration test with AFL:
+     ```bash
+     afl-gcc afl_integration.c -o afl_integration
+     ```
+  3. Run AFL fuzz testing:
+     ```bash
+     afl-fuzz -i input_dir -o output_dir -- afl_integration @@
+     ```
+     Replace `input_dir` with the directory containing input seed files (if any), `output_dir` with the directory to store AFL's findings and crashes, and `afl_integration` with the name of the compiled executable.
+
+
 You can also use the provided `make.sh` script to build and run the tests:
 
 ```bash
