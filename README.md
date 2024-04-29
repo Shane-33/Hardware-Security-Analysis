@@ -11,11 +11,6 @@ This repository contains various tools and tests related to hardware security an
 The rowhammer problem is described in Yoongu Kim et al's paper, "[Flipping Bits in Memory Without Accessing Them: An Experimental Study of DRAM Disturbance Errors](http://users.ece.cmu.edu/~yoonguk/papers/kim-isca14.pdf)" (2014).
 
 ## Directory Structure
--src
--tests
-
-## Building and Running the Tests
-
 The repository follows the following directory structure:
 
 - **src**: Contains the source code files for the project.
