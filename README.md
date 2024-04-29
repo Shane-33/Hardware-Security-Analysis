@@ -12,6 +12,14 @@ The rowhammer problem is described in Yoongu Kim et al's paper, "[Flipping Bits 
 
 ## Directory Structure
 
+The repository follows the following directory structure:
+
+- **src**: Contains the source code files for the project.
+- **tests**: Contains various test programs and scripts used for testing and analysis.
+
+
+## Building and Running the Tests
+
 ### Tests
 
 #### rowhammer_test_v2.c
@@ -59,10 +67,69 @@ The rowhammer problem is described in Yoongu Kim et al's paper, "[Flipping Bits 
      ./rowhammer
      ```
 
-## Building and Running the Tests
+## Additional Tests
 
-You can also use the provided `make.sh` script to build and run the tests:
+### hardware_test.c
 
-```bash
-./make.sh
-./rowhammer_test
+- **Description**: This file contains tests for measuring the latency and bandwidth of memory accesses.
+- **Language**: C
+- **Usage**:
+  1. Navigate to the `tests` directory.
+  2. Compile the test file:
+     ```bash
+     gcc hardware_test.c -o hardware_test
+     ```
+  3. Run the test:
+     ```bash
+     ./hardware_test
+     ```
+
+### aggressive_bit_toggle.c
+
+- **Description**: This file contains a test for aggressively toggling bits in memory to simulate potential vulnerabilities.
+- **Language**: C
+- **Usage**:
+  1. Navigate to the `tests` directory.
+  2. Compile the test file:
+     ```bash
+     gcc aggressive_bit_toggle.c -o aggressive_bit_toggle
+     ```
+  3. Run the test:
+     ```bash
+     ./aggressive_bit_toggle
+     ```
+
+### afl_integration.c
+
+- **Description**: This file demonstrates integration with AFL for fuzz testing.
+- **Language**: C
+- **Usage**:
+  1. Navigate to the `tests` directory.
+  2. Compile the integration test with AFL:
+     ```bash
+     afl-gcc afl_integration.c -o afl_integration
+     ```
+  3. Run AFL fuzz testing:
+     ```bash
+     afl-fuzz -i input_dir -o output_dir -- afl_integration @@
+     ```
+     Replace `input_dir` with the directory containing input seed files (if any), `output_dir` with the directory to store AFL's findings and crashes, and `afl_integration` with the name of the compiled executable.
+
+
+## Rowhammer Tester
+
+This section provides details about the Rowhammer Tester Web Interface and how to use it.
+
+### Rowhammer Tester Web Interface
+
+The Rowhammer Tester Web Interface provides a platform for running Rowhammer tests to detect and analyze the vulnerability in different memory configurations.
+
+![Rowhammer Tester Interface](image.png)
+
+### How to Use the Rowhammer Tester Web Interface
+
+1. Click on the "Run Rowhammer Test" button to start the test.
+2. Select a Rowhammer test from the options provided.
+3. View the test results and analyze the visualization to detect any memory vulnerabilities.
+
+![Rowhammer Tester Usage](image2.png)
