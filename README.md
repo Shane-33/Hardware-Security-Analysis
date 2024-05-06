@@ -8,7 +8,13 @@ This repository contains various tools and tests related to hardware security an
 
 "Rowhammer" is a problem with recent DRAM modules in which repeatedly accessing a row of memory can cause bit flips in adjacent rows. This repository contains programs for testing the rowhammer problem, which run as normal userland processes.
 
-The rowhammer problem is described in Yoongu Kim et al's paper, "[Flipping Bits in Memory Without Accessing Them: An Experimental Study of DRAM Disturbance Errors](http://users.ece.cmu.edu/~yoonguk/papers/kim-isca14.pdf)" (2014).
+The rowhammer problem is described by:
+
+- Yoongu Kim et al's paper, "[Flipping Bits in Memory Without Accessing Them: An Experimental Study of DRAM Disturbance Errors](http://users.ece.cmu.edu/~yoonguk/papers/kim-isca14.pdf)" (2014).
+
+- Our blog post, "[Exploiting the DRAM rowhammer bug to gain kernel privileges](https://googleprojectzero.blogspot.com/2015/03/exploiting-dram-rowhammer-bug-to-gain.html)" (2015), on the blog of Google's Project Zero.
+
+- Rowhammer-test repository: [rowhammer-test](https://github.com/google/rowhammer-test)
 
 ## Directory Structure
 The repository follows the following directory structure:
